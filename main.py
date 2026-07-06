@@ -14,7 +14,11 @@ intents.members = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 ALLOWED_CHANNEL_IDS = [1523325684498563244, 1523325684498563245, 1523515227910701146]
-VOUCH_CHANNEL_ID = 1523325684498563244 
+# الرابط المباشر لروم الفاوش الخاص بك
+VOUCH_LINK = "https://discord.com/channels/1523325683236077719/1523682673678352508"
+# الـ ID الخاص بروم الفاوش للتحقق (مستخرج من الرابط)
+VOUCH_CHANNEL_ID = 1523682673678352508 
+
 OWNER_ROLE_ID = 1523325683344998515
 CREATOR_ROLE_ID = 1523325683344998516
 BOOSTER_ROLE_ID = 1523325683294670945
@@ -43,7 +47,6 @@ def has_status(member):
 async def globally_check(ctx):
     if ctx.author.id in banned_from_bot:
         if datetime.now() < banned_from_bot[ctx.author.id]:
-            await ctx.send("🚫 | أنت محظور مؤقتاً بسبب عدم كتابة الـ Vouch.")
             return False
         else:
             del banned_from_bot[ctx.author.id]
@@ -107,16 +110,16 @@ async def gen(ctx, service: str = None):
     user_cooldowns[ctx.author.id] = datetime.now()
     vouch_pending[ctx.author.id] = datetime.now()
     
-    embed = discord.Embed(title="🎉 | تم الاستلام بنجاح!", description=f"إليك الـ {term} الخاص بك: ||`{item}`||\n\n**ملاحظة:** لديك 15 دقيقة لكتابة `+rep vouch {service}` في روم الـ Vouch لتجنب الحظر المؤقت!", color=0x57f287)
+    embed = discord.Embed(title="🎉 | تم الاستلام بنجاح!", description=f"إليك الـ {term} الخاص بك: ||`{item}`||\n\n**ملاحظة:** لديك 15 دقيقة لكتابة `+rep vouch {service}` في [روم الـ Vouch]({VOUCH_LINK}) لتجنب الحظر المؤقت!", color=0x57f287)
     
     try:
         await ctx.author.send(embed=embed)
-        await ctx.send(f"✅ | أرسلت لك الـ {term} في الخاص! تذكر كتابة `+rep vouch {service}`.")
+        await ctx.send(f"✅ | أرسلت لك الـ {term} في الخاص! تذكر كتابة `+rep vouch {service}` في [روم الـ Vouch]({VOUCH_LINK}).")
         
         await asyncio.sleep(900) 
         if ctx.author.id in vouch_pending:
             banned_from_bot[ctx.author.id] = datetime.now() + timedelta(minutes=30)
-            await ctx.send(f"⚠️ | {ctx.author.mention} لم تقم بكتابة الـ Vouch. تم حظرك من البوت لمدة 30 دقيقة!")
+            await ctx.send(f"⚠️ | {ctx.author.mention} لم تقم بكتابة الـ Vouch في [الروم المخصصة]({VOUCH_LINK}). تم حظرك من البوت لمدة 30 دقيقة!")
             del vouch_pending[ctx.author.id]
     except discord.Forbidden:
         await ctx.send("⚠️ | افتح الخاص لاستلام الـ " + term)
