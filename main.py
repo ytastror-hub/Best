@@ -101,4 +101,4 @@ async def gen(ctx, service: str = None):
     await ctx.author.send(embed=embed)
     await ctx.send("✅ | تم الإرسال للخاص! تذكر الـ Vouch.")
 
-bot.run('ضع_التوكن_هنا')
+bot.run('TOKEN')
