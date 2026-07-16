@@ -13,11 +13,12 @@ intents.members = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-# رابط صورتك الاحترافية
+# الرابط الخاص بالصورة
 SERVER_IMAGE_URL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1C5sVTxubD9p2gSo-yBhU_hVaL4-f2IJNPd9o7KlE2A&s=10"
 
 ALLOWED_CHANNEL_IDS = [1527348471227613406, 1527348422288605306, 1527348392198672545, 1527348363220095067, 1527348320257839176]
 VOUCH_LINK = "https://discord.com/channels/1524767218875895968/1527348471227613406"
+VOUCH_CHANNEL_ID = 1527348471227613406 # تم تحديده من الرابط
 
 # الرتب
 OWNER_ROLE_ID = 1524767522199572620
@@ -26,9 +27,7 @@ BOOSTER_ROLE_ID = 1524767547663192117
 PREMIUM_ROLE_ID = 1524767549684846712
 FREEMIUM_ROLE_ID = 1527346929745264691
 
-user_cooldowns = {}
 vouch_pending = {} 
-banned_from_bot = {} 
 
 # --- الدوال ---
 def get_accounts(service):
@@ -43,6 +42,19 @@ def has_cstatus(member):
             if activity.name and "Ender Cloud Best Mcfa Gen" in activity.name:
                 return True
     return False
+
+# --- الأحداث ---
+@bot.event
+async def on_message(message):
+    if message.author.bot: return
+    if message.channel.id == VOUCH_CHANNEL_ID:
+        if "+rep vouch" in message.content.lower():
+            user_id = message.author.id
+            if user_id in vouch_pending:
+                del vouch_pending[user_id]
+                await message.add_reaction("✅")
+                await message.channel.send(f"✨ شكراً يا {message.author.mention} على الـ Vouch!")
+    await bot.process_commands(message)
 
 # --- الأوامر ---
 
@@ -95,10 +107,13 @@ async def gen(ctx, service: str = None):
     item = accounts.pop(0) if service == "minecraft" else random.choice(accounts)
     with open(f"{service}.txt", "w") as f: f.write("\n".join(accounts))
     
-    embed = discord.Embed(title="🎉 | تم الاستلام!", description=f"الحساب: ||`{item}`||", color=0x57f287)
+    vouch_pending[ctx.author.id] = datetime.now()
+    
+    embed = discord.Embed(title="🎉 | تم الاستلام!", description=f"الحساب: ||`{item}`||\n\n**ملاحظة:** لديك 15 دقيقة لكتابة `+rep vouch {service}` في [روم الـ Vouch]({VOUCH_LINK}) لتجنب الحظر!", color=0x57f287)
     embed.set_thumbnail(url=SERVER_IMAGE_URL)
     embed.set_footer(text="Ender Cloud Gen System", icon_url=SERVER_IMAGE_URL)
+    
     await ctx.author.send(embed=embed)
-    await ctx.send("✅ | تم الإرسال للخاص! تذكر الـ Vouch.")
+    await ctx.send(f"✅ | أرسلت لك في الخاص! تذكر كتابة `+rep vouch {service}` في الروم المخصصة.")
 
 bot.run(os.environ.get('TOKEN'))
